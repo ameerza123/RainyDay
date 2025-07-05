@@ -7,4 +7,4 @@ A minimalist mobile app that helps users remember and act on the things they’v
 - Firebase (Auth, Firestore, Messaging)
 - OpenWeatherMap API
 
-Designed and developed by Ameer Ahmad
+## Designed and developed by Ameer Ahmad
