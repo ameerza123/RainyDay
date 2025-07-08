@@ -1,18 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
-import Dashboard from './src/screens/Dashboard';
-import UserAuth from './src/screens/UserAuth';
+import React from 'react';
+import { AuthProvider } from './src/services/AuthContext'
+import AppNavigator from './src/services/AppNavigator';
 
 export default function App() {
   return (
-    <UserAuth />
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

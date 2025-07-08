@@ -1,5 +1,10 @@
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import Constants from 'expo-constants';
+
 const env = Constants.expoConfig?.extra;
+console.log('🔥 Firebase ENV:', env);
+
 
 const firebaseConfig = {
   apiKey: env?.FIREBASE_API_KEY,
@@ -10,3 +15,9 @@ const firebaseConfig = {
   appId: env?.FIREBASE_APP_ID,
   measurementId: env?.FIREBASE_MEASUREMENT_ID,
 };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+export { auth };
+
