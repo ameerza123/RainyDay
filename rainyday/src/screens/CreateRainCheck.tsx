@@ -10,6 +10,10 @@ import {
   ScrollView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { useAuth } from '../services/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 const CreateRainCheck = () => {
   const [title, setTitle] = useState('');
@@ -32,21 +36,38 @@ const CreateRainCheck = () => {
     }
   };
 
-  const handleSave = () => { // Firestore logic goes here
-    const payload = {
-      title,
-      notes,
-      reminderType,
-      reminderValue: reminderType === 'fixed' ? Number(fixedDays) : null,
-      imageUri,
-      emoji,
-      url,
-      isPublic,
-      createdAt: new Date(),
-    };
+    const { user } = useAuth();
+    const navigation = useNavigation();
 
-    console.log('🧾 Saving RainCheck:', payload);
-  };
+    const handleSave = async () => {
+    if (!title.trim()) {
+        alert('Title is required');
+        return;
+    }
+
+    try {
+        const docRef = await addDoc(collection(db, 'rainchecks'), {
+        userId: user?.uid,
+        title: title.trim(),
+        notes: notes.trim() || '',
+        reminderType,
+        reminderValue:
+            reminderType === 'fixed' ? Number(fixedDays) || null : null,
+        imageUri: imageUri || '',
+        emoji: emoji || '',
+        url: url.trim() || '',
+        isPublic,
+        createdAt: serverTimestamp(),
+        completed: false,
+        });
+
+        console.log('✅ RainCheck saved with ID:', docRef.id);
+        navigation.goBack();
+    } catch (err) {
+        console.error('Error saving RainCheck:', err);
+        alert('Failed to save RainCheck. Please try again.');
+    }
+    };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
