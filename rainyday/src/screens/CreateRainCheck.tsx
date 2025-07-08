@@ -54,6 +54,16 @@ const CreateRainCheck = () => {
       return;
     }
 
+    if (title.trim().length > 50) {
+      alert('Title must be 50 characters or less.');
+      return;
+    }
+
+    if (notes.trim().length > 280) {
+      alert('Description must be 280 characters or less.');
+      return;
+    }
+
     if (!emoji.trim() || !isSingleEmoji(emoji.trim())) {
       alert('Please enter a valid emoji.');
       return;

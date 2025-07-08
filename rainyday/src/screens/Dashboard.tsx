@@ -1,62 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../services/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../services/AuthContext';
-
-const quotes = [
-  "What are you waiting for?",
-  "Life is too short to wait for the perfect moment.",
-  "Is there ever gonna be a better time?",
-  "If not now, then when?"
-];
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const Dashboard = () => {
-  const { user } = useAuth();
   const navigation = useNavigation();
+  const { user } = useAuth();
 
   const [rainChecks, setRainChecks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [quote, setQuote] = useState('');
-
-  useEffect(() => {
-    // Picks a random quote on mount
-    const random = quotes[Math.floor(Math.random() * quotes.length)];
-    setQuote(random);
-  }, []);
-
-  useEffect(() => {
-    const fetchRainChecks = async () => {
-      try {
-        const q = query(
-          collection(db, 'rainchecks'),
-          where('userId', '==', user?.uid),
-          where('completed', '==', false)
-        );
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setRainChecks(data);
-      } catch (err) {
-        console.error('Error fetching RainChecks:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user) fetchRainChecks();
-  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -70,33 +31,67 @@ const Dashboard = () => {
     navigation.navigate('CreateRainCheck' as never);
   };
 
-  const renderRainCheck = ({ item }: { item: any }) => (
-    <View style={styles.card}>
-      <Text style={styles.cardText}>
-        {item.title} {item.emoji || '🙂'}
-      </Text>
-    </View>
+  const fetchRainChecks = async () => {
+    try {
+      setLoading(true);
+      const q = query(
+        collection(db, 'rainchecks'),
+        where('userId', '==', user?.uid),
+        where('completed', '==', false)
+      );
+      const snapshot = await getDocs(q);
+      const results = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setRainChecks(results);
+    } catch (error) {
+      console.error('Error fetching RainChecks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchRainChecks();
+    }, [user])
   );
+
+  const motivationalQuotes = [
+    "Life is too short to wait for the perfect moment.",
+    "What are you waiting for?",
+    "Go for it. RainCheck later.",
+    "Is there ever gonna be a better time?",
+    "If not now, then when?"
+  ];
+
+  const quote =
+    motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
 
   return (
     <View style={styles.container}>
       <Text style={styles.quote}>{quote}</Text>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="orange" style={{ marginTop: 20 }} />
-      ) : rainChecks.length === 0 ? (
-        <Text style={styles.message}>Tap the + button below to create a RainCheck!</Text>
-      ) : (
-        <Text style={styles.message}>You have {rainChecks.length} pending RainChecks</Text>
-      )}
+      <Text style={styles.subtitle}>
+        {loading
+          ? 'Loading...'
+          : rainChecks.length > 0
+          ? `You have ${rainChecks.length} pending RainCheck${
+              rainChecks.length > 1 ? 's' : ''
+            }.`
+          : 'Tap the + button below to create a RainCheck!'}
+      </Text>
 
-      <FlatList
-        data={rainChecks}
-        keyExtractor={(item) => item.id}
-        renderItem={renderRainCheck}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      <ScrollView contentContainerStyle={styles.scrollArea}>
+        {rainChecks.map((rc) => (
+          <View key={rc.id} style={styles.card}>
+            <Text style={styles.cardText}>
+              {rc.title} {rc.emoji || '😊'}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Log Out</Text>
@@ -113,24 +108,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingTop: 48,
     paddingHorizontal: 24,
-    paddingTop: 60,
   },
   quote: {
     fontSize: 18,
     fontStyle: 'italic',
     textAlign: 'center',
-    marginBottom: 12,
-    color: '#333',
+    marginBottom: 16,
+    color: '#444',
   },
-  message: {
+  subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    marginBottom: 20,
-    color: '#666',
+    marginBottom: 16,
   },
-  listContainer: {
-    paddingBottom: 120,
+  scrollArea: {
+    paddingBottom: 100,
   },
   card: {
     backgroundColor: 'orange',
@@ -140,7 +134,7 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 18,
-    color: 'white',
+    color: '#fff',
     fontWeight: '600',
   },
   logoutButton: {
