@@ -42,9 +42,20 @@ const CreateRainCheck = () => {
     }
   };
 
+  const isSingleEmoji = (str: string) => {
+    const emojiRegex =
+      /^(?:\p{Emoji_Presentation}|\p{Emoji}\uFE0F)$/u;
+    return emojiRegex.test(str);
+  };
+
   const handleSave = async () => {
     if (!title.trim()) {
       alert('Title is required');
+      return;
+    }
+
+    if (!emoji.trim() || !isSingleEmoji(emoji.trim())) {
+      alert('Please enter a valid emoji.');
       return;
     }
 
@@ -83,17 +94,28 @@ const CreateRainCheck = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Title"
+        placeholder="What do you wanna do?"
         value={title}
         onChangeText={setTitle}
       />
 
       <TextInput
         style={[styles.input, styles.textarea]}
-        placeholder="Description"
+        placeholder="Got any info to add?"
         value={notes}
         onChangeText={setNotes}
         multiline
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Pick a representative emoji (🍷, 💌, 🌮)"
+        value={emoji}
+        onChangeText={setEmoji}
+        keyboardType="default"
+        maxLength={2}
+        autoCorrect={false}
+        autoCapitalize="none"
       />
 
       <Text style={styles.label}>Reminder Type:</Text>
@@ -148,13 +170,6 @@ const CreateRainCheck = () => {
           <Text>Select Image</Text>
         </TouchableOpacity>
       )}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Or enter an emoji (e.g., 🎬)"
-        value={emoji}
-        onChangeText={setEmoji}
-      />
 
       <TextInput
         style={styles.input}
