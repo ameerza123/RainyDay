@@ -16,7 +16,8 @@ import { useAuth } from '../services/AuthContext';
 const quotes = [
   "What are you waiting for?",
   "Life is too short to wait for the perfect moment.",
-  "Is there ever gonna be a better time?"
+  "Is there ever gonna be a better time?",
+  "If not now, then when?"
 ];
 
 const Dashboard = () => {
@@ -28,7 +29,7 @@ const Dashboard = () => {
   const [quote, setQuote] = useState('');
 
   useEffect(() => {
-    // Set a random quote on mount
+    // Picks a random quote on mount
     const random = quotes[Math.floor(Math.random() * quotes.length)];
     setQuote(random);
   }, []);
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     position: 'absolute',
-    bottom: 32, // lifted a little
+    bottom: 32,
     alignSelf: 'center',
     backgroundColor: 'orange',
     width: 60,

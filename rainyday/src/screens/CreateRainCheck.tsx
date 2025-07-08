@@ -97,7 +97,9 @@ const CreateRainCheck = () => {
         placeholder="What do you wanna do?"
         value={title}
         onChangeText={setTitle}
+        maxLength={50}
       />
+      <Text style={styles.charCount}>{title.length}/50</Text>
 
       <TextInput
         style={[styles.input, styles.textarea]}
@@ -105,7 +107,9 @@ const CreateRainCheck = () => {
         value={notes}
         onChangeText={setNotes}
         multiline
+        maxLength={280}
       />
+      <Text style={styles.charCount}>{notes.length}/280</Text>
 
       <TextInput
         style={styles.input}
@@ -213,6 +217,13 @@ const styles = StyleSheet.create({
   textarea: {
     height: 100,
     textAlignVertical: 'top',
+  },
+  charCount: {
+    fontSize: 12,
+    color: '#888',
+    alignSelf: 'flex-end',
+    marginTop: -12,
+    marginBottom: 12,
   },
   label: {
     fontWeight: '600',
