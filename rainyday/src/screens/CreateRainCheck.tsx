@@ -8,8 +8,10 @@ import {
   Switch,
   Image,
   ScrollView,
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../services/AuthContext';
@@ -18,12 +20,16 @@ import { useNavigation } from '@react-navigation/native';
 const CreateRainCheck = () => {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
-  const [reminderType, setReminderType] = useState<'fixed' | 'random' | 'rain'>('fixed');
-  const [fixedDays, setFixedDays] = useState('');
+  const [reminderType, setReminderType] = useState<'fixed' | 'random' | 'rain'>('rain');
+  const [fixedDate, setFixedDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [emoji, setEmoji] = useState('');
   const [url, setUrl] = useState('');
   const [isPublic, setIsPublic] = useState(false);
+
+  const { user } = useAuth();
+  const navigation = useNavigation();
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -36,38 +42,40 @@ const CreateRainCheck = () => {
     }
   };
 
-    const { user } = useAuth();
-    const navigation = useNavigation();
-
-    const handleSave = async () => {
+  const handleSave = async () => {
     if (!title.trim()) {
-        alert('Title is required');
-        return;
+      alert('Title is required');
+      return;
+    }
+
+    if (reminderType === 'fixed' && !fixedDate) {
+      alert('Please select a reminder date.');
+      return;
     }
 
     try {
-        const docRef = await addDoc(collection(db, 'rainchecks'), {
+      const docRef = await addDoc(collection(db, 'rainchecks'), {
         userId: user?.uid,
         title: title.trim(),
         notes: notes.trim() || '',
         reminderType,
         reminderValue:
-            reminderType === 'fixed' ? Number(fixedDays) || null : null,
+          reminderType === 'fixed' ? fixedDate?.toISOString() : null,
         imageUri: imageUri || '',
         emoji: emoji || '',
         url: url.trim() || '',
         isPublic,
         createdAt: serverTimestamp(),
         completed: false,
-        });
+      });
 
-        console.log('✅ RainCheck saved with ID:', docRef.id);
-        navigation.goBack();
+      console.log('✅ RainCheck saved with ID:', docRef.id);
+      navigation.goBack();
     } catch (err) {
-        console.error('Error saving RainCheck:', err);
-        alert('Failed to save RainCheck. Please try again.');
+      console.error('Error saving RainCheck:', err);
+      alert('Failed to save RainCheck. Please try again.');
     }
-    };
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -82,7 +90,7 @@ const CreateRainCheck = () => {
 
       <TextInput
         style={[styles.input, styles.textarea]}
-        placeholder="Description / Notes"
+        placeholder="Description"
         value={notes}
         onChangeText={setNotes}
         multiline
@@ -90,7 +98,7 @@ const CreateRainCheck = () => {
 
       <Text style={styles.label}>Reminder Type:</Text>
       <View style={styles.radioGroup}>
-        {['fixed', 'random', 'rain'].map((type) => (
+        {['rain', 'random', 'fixed'].map((type) => (
           <TouchableOpacity
             key={type}
             style={[
@@ -105,13 +113,31 @@ const CreateRainCheck = () => {
       </View>
 
       {reminderType === 'fixed' && (
-        <TextInput
-          style={styles.input}
-          placeholder="Remind me in how many days?"
-          keyboardType="number-pad"
-          value={fixedDays}
-          onChangeText={setFixedDays}
-        />
+        <>
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text>
+              {fixedDate
+                ? fixedDate.toDateString()
+                : 'Select reminder date'}
+            </Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={fixedDate || new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'inline' : 'default'}
+              minimumDate={new Date()}
+              onChange={(_, selectedDate) => {
+                setShowDatePicker(false);
+                if (selectedDate) setFixedDate(selectedDate);
+              }}
+            />
+          )}
+        </>
       )}
 
       <Text style={styles.label}>Pick an Image (optional):</Text>
