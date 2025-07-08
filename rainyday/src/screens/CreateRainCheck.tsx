@@ -143,7 +143,7 @@ const CreateRainCheck = () => {
             <Text>
               {fixedDate
                 ? fixedDate.toDateString()
-                : 'Select reminder date'}
+                : 'How do you wanna be reminded?'}
             </Text>
           </TouchableOpacity>
 
@@ -162,7 +162,7 @@ const CreateRainCheck = () => {
         </>
       )}
 
-      <Text style={styles.label}>Pick an Image (optional):</Text>
+      <Text style={styles.label}>Got a pic? (optional):</Text>
       {imageUri ? (
         <Image source={{ uri: imageUri }} style={styles.image} />
       ) : (

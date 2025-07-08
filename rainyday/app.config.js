@@ -28,6 +28,9 @@ export default {
       favicon: './assets/favicon.png',
     },
     extra: {
+      eas: {
+        projectId: 'f74fe5b4-fb41-48dd-823f-3cbc4dc0b868',
+      },
       FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
       FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
       FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
