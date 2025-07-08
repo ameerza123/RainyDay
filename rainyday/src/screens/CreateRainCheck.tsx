@@ -143,7 +143,7 @@ const CreateRainCheck = () => {
             <Text>
               {fixedDate
                 ? fixedDate.toDateString()
-                : 'How do you wanna be reminded?'}
+                : 'When do you wanna be reminded?'}
             </Text>
           </TouchableOpacity>
 
