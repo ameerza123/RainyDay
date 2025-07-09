@@ -11,9 +11,11 @@ import { auth, db } from '../services/firebase';
 import { useAuth } from '../services/AuthContext';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../services/types';
 
 const Dashboard = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
 
   const [rainChecks, setRainChecks] = useState<any[]>([]);
@@ -85,11 +87,15 @@ const Dashboard = () => {
 
       <ScrollView contentContainerStyle={styles.scrollArea}>
         {rainChecks.map((rc) => (
-          <View key={rc.id} style={styles.card}>
+          <TouchableOpacity
+            key={rc.id}
+            style={styles.card}
+            onPress={() => navigation.navigate('ViewRainCheck', { rainCheck: rc })}
+          >
             <Text style={styles.cardText}>
               {rc.title} {rc.emoji || '😊'}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
 

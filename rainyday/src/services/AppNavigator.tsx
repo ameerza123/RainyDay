@@ -4,8 +4,10 @@ import { useAuth } from './AuthContext';
 import UserAuth from '../screens/UserAuth';
 import Dashboard from '../screens/Dashboard';
 import CreateRainCheck from '../screens/CreateRainCheck';
+import ViewRainCheck from '../screens/ViewRainCheck';
+import { RootStackParamList } from './types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
   const { user } = useAuth();
@@ -30,6 +32,11 @@ const AppNavigator = () => {
               name="CreateRainCheck"
               component={CreateRainCheck}
               options={{ title: 'New RainCheck' }}
+            />
+            <Stack.Screen
+              name="ViewRainCheck"
+              component={ViewRainCheck}
+              options={{ title: 'RainCheck Details' }}
             />
           </>
         )}
