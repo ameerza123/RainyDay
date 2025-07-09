@@ -6,11 +6,14 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../services/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 const ViewRainCheck = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'ViewRainCheck'>>();
@@ -21,6 +24,29 @@ const ViewRainCheck = () => {
 
   const handleEdit = () => {
     navigation.navigate('CreateRainCheck', { rainCheck });
+  };
+
+  const handleDelete = async () => {
+    Alert.alert(
+      'Delete RainCheck',
+      'Are you sure you want to delete this RainCheck?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, 'rainchecks', rainCheck.id));
+              navigation.goBack();
+            } catch (error) {
+              console.error('Error deleting RainCheck:', error);
+              Alert.alert('Failed to delete. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -63,6 +89,10 @@ const ViewRainCheck = () => {
       <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
         <Text style={styles.editButtonText}>Edit RainCheck</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+        <Text style={styles.deleteButtonText}>Delete RainCheck</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -103,6 +133,17 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   editButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  deleteButton: {
+    backgroundColor: '#cc0000',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
