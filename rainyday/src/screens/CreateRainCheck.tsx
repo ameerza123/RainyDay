@@ -39,6 +39,7 @@ const CreateRainCheck = () => {
       : null
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(existing?.imageUri || null);
   const [emoji, setEmoji] = useState(existing?.emoji || '');
   const [url, setUrl] = useState(existing?.url || '');
@@ -176,17 +177,14 @@ const CreateRainCheck = () => {
 
       {reminderType === 'fixed' && (
         <>
-          <TouchableOpacity
-            style={styles.input}
-            onPress={() => setShowDatePicker(true)}
-          >
+          {/* Date Picker Trigger */}
+          <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
             <Text>
-              {fixedDate
-                ? fixedDate.toDateString()
-                : 'When do you wanna be reminded?'}
+              {fixedDate ? fixedDate.toDateString() : 'Select a date to be reminded.'}
             </Text>
           </TouchableOpacity>
 
+          {/* Date Picker */}
           {showDatePicker && (
             <DateTimePicker
               value={fixedDate || new Date()}
@@ -195,7 +193,50 @@ const CreateRainCheck = () => {
               minimumDate={new Date()}
               onChange={(_, selectedDate) => {
                 setShowDatePicker(false);
-                if (selectedDate) setFixedDate(selectedDate);
+                if (selectedDate) {
+                  const current = fixedDate || new Date();
+                  const newDate = new Date(
+                    selectedDate.getFullYear(),
+                    selectedDate.getMonth(),
+                    selectedDate.getDate(),
+                    current.getHours(),
+                    current.getMinutes()
+                  );
+                  setFixedDate(newDate);
+                }
+              }}
+            />
+          )}
+
+          {/* Time Picker Trigger */}
+          <TouchableOpacity style={styles.input} onPress={() => setShowTimePicker(true)}>
+            <Text>
+              {fixedDate
+                ? fixedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : 'Select time of day'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Time Picker */}
+          {showTimePicker && (
+            <DateTimePicker
+              value={fixedDate || new Date()}
+              mode="time"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              is24Hour={false}
+              onChange={(_, selectedTime) => {
+                setShowTimePicker(false);
+                if (selectedTime) {
+                  const current = fixedDate || new Date();
+                  const newDate = new Date(
+                    current.getFullYear(),
+                    current.getMonth(),
+                    current.getDate(),
+                    selectedTime.getHours(),
+                    selectedTime.getMinutes()
+                  );
+                  setFixedDate(newDate);
+                }
               }}
             />
           )}
