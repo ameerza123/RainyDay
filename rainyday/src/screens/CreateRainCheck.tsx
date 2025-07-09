@@ -64,6 +64,7 @@ const CreateRainCheck = () => {
     return emojiRegex.test(str);
   };
 
+  // Saving + Validating RainCheck
   const handleSave = async () => {
     if (!title.trim()) {
       alert('Title is required');
@@ -90,12 +91,34 @@ const CreateRainCheck = () => {
       return;
     }
 
+    // Generate reminderValue based on type
+    let reminderValue: string | null = null;
+
+    if (reminderType === 'fixed') {
+      reminderValue = fixedDate?.toISOString() || null;
+    } else if (reminderType === 'random') {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(now.getDate() + 1); // start from tomorrow
+      start.setHours(9, 0, 0, 0); // 9:00 AM
+
+      const end = new Date(now);
+      end.setDate(now.getDate() + 365);
+      end.setHours(9, 0, 0, 0); // 9:00 AM one year later
+
+      const randomTimestamp = start.getTime() + Math.random() * (end.getTime() - start.getTime());
+      const randomDate = new Date(randomTimestamp);
+      randomDate.setHours(9, 0, 0, 0); // Force 9:00 AM
+
+      reminderValue = randomDate.toISOString();
+    }
+
     const rainCheckData = {
       userId: user?.uid,
       title: title.trim(),
       notes: notes.trim(),
       reminderType,
-      reminderValue: reminderType === 'fixed' ? fixedDate?.toISOString() : null,
+      reminderValue,
       imageUri: imageUri || '',
       emoji: emoji.trim(),
       url: url.trim(),
