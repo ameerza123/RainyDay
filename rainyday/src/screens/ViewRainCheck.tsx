@@ -12,7 +12,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../services/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
 const ViewRainCheck = () => {
@@ -49,6 +49,33 @@ const ViewRainCheck = () => {
     );
   };
 
+  const handleComplete = async () => {
+    Alert.alert(
+      'Complete RainCheck',
+      'Mark this RainCheck as completed?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Complete',
+          style: 'default',
+          onPress: async () => {
+            try {
+              const ref = doc(db, 'rainchecks', rainCheck.id);
+              await updateDoc(ref, {
+                completed: true,
+                completedAt: new Date().toISOString(),
+              });
+              navigation.goBack(); // Remove it from Dashboard
+            } catch (error) {
+              console.error('Error marking complete:', error);
+              Alert.alert('Failed to complete. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{rainCheck.title}</Text>
@@ -60,11 +87,11 @@ const ViewRainCheck = () => {
       <Text style={styles.label}>Reminder Type:</Text>
       <Text style={styles.text}>{rainCheck.reminderType}</Text>
 
-      {rainCheck.reminderType === 'fixed' && rainCheck.reminderValue && (
+      {rainCheck.reminderValue && (
         <>
-          <Text style={styles.label}>Reminder Date:</Text>
+          <Text style={styles.label}>Reminder Time:</Text>
           <Text style={styles.text}>
-            {new Date(rainCheck.reminderValue).toDateString()}
+            {new Date(rainCheck.reminderValue).toLocaleString()}
           </Text>
         </>
       )}
@@ -93,6 +120,12 @@ const ViewRainCheck = () => {
       <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
         <Text style={styles.deleteButtonText}>Delete RainCheck</Text>
       </TouchableOpacity>
+
+      {!rainCheck.completed && (
+        <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
+          <Text style={styles.completeButtonText}>Mark as Completed</Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 };
@@ -144,6 +177,17 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   deleteButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  completeButton: {
+    backgroundColor: '#228B22',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  completeButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },

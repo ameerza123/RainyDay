@@ -30,16 +30,17 @@ const CreateRainCheck = () => {
 
   const [title, setTitle] = useState(existing?.title || '');
   const [notes, setNotes] = useState(existing?.notes || '');
-  const [reminderType, setReminderType] = useState<'fixed' | 'random' | 'rain'>(
-    existing?.reminderType || 'rain'
+  const [reminderType, setReminderType] = useState<'random' | 'reserved' | 'rain'>(
+    existing?.reminderType || 'random'
   );
   const [fixedDate, setFixedDate] = useState<Date | null>(
-    existing?.reminderType === 'fixed' && existing.reminderValue
+    existing?.reminderType === 'reserved' && existing.reminderValue
       ? new Date(existing.reminderValue)
       : null
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [tempDate, setTempDate] = useState<Date | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(existing?.imageUri || null);
   const [emoji, setEmoji] = useState(existing?.emoji || '');
   const [url, setUrl] = useState(existing?.url || '');
@@ -64,7 +65,6 @@ const CreateRainCheck = () => {
     return emojiRegex.test(str);
   };
 
-  // Saving + Validating RainCheck
   const handleSave = async () => {
     if (!title.trim()) {
       alert('Title is required');
@@ -86,31 +86,9 @@ const CreateRainCheck = () => {
       return;
     }
 
-    if (reminderType === 'fixed' && !fixedDate) {
-      alert('Please select a reminder date.');
+    if (reminderType === 'reserved' && !fixedDate) {
+      alert('Please select a reminder date and time.');
       return;
-    }
-
-    // Generate reminderValue based on type
-    let reminderValue: string | null = null;
-
-    if (reminderType === 'fixed') {
-      reminderValue = fixedDate?.toISOString() || null;
-    } else if (reminderType === 'random') {
-      const now = new Date();
-      const start = new Date(now);
-      start.setDate(now.getDate() + 1); // start from tomorrow
-      start.setHours(9, 0, 0, 0); // 9:00 AM
-
-      const end = new Date(now);
-      end.setDate(now.getDate() + 365);
-      end.setHours(9, 0, 0, 0); // 9:00 AM one year later
-
-      const randomTimestamp = start.getTime() + Math.random() * (end.getTime() - start.getTime());
-      const randomDate = new Date(randomTimestamp);
-      randomDate.setHours(9, 0, 0, 0); // Force 9:00 AM
-
-      reminderValue = randomDate.toISOString();
     }
 
     const rainCheckData = {
@@ -118,12 +96,13 @@ const CreateRainCheck = () => {
       title: title.trim(),
       notes: notes.trim(),
       reminderType,
-      reminderValue,
+      reminderValue: reminderType === 'reserved' ? fixedDate?.toISOString() : null,
       imageUri: imageUri || '',
       emoji: emoji.trim(),
       url: url.trim(),
       isPublic,
       completed: existing?.completed || false,
+      completedAt: existing?.completedAt || null
     };
 
     try {
@@ -184,7 +163,7 @@ const CreateRainCheck = () => {
 
       <Text style={styles.label}>Reminder Type:</Text>
       <View style={styles.radioGroup}>
-        {['rain', 'random', 'fixed'].map((type) => (
+        {['random', 'reserved', 'rain'].map((type) => (
           <TouchableOpacity
             key={type}
             style={[
@@ -198,16 +177,31 @@ const CreateRainCheck = () => {
         ))}
       </View>
 
-      {reminderType === 'fixed' && (
+      <Text style={styles.reminderHint}>
+        {reminderType === 'random' && "Who knows when you'll get reminded?"}
+        {reminderType === 'reserved' && "You choose when to be reminded."}
+        {reminderType === 'rain' && "You'll be reminded next time it rains."}
+      </Text>
+
+      {reminderType === 'reserved' && (
         <>
-          {/* Date Picker Trigger */}
-          <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowDatePicker(true)}
+          >
             <Text>
-              {fixedDate ? fixedDate.toDateString() : 'Select a date to be reminded.'}
+              {fixedDate
+                ? fixedDate.toLocaleString([], {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : 'When do you wanna be reminded?'}
             </Text>
           </TouchableOpacity>
 
-          {/* Date Picker */}
           {showDatePicker && (
             <DateTimePicker
               value={fixedDate || new Date()}
@@ -217,31 +211,14 @@ const CreateRainCheck = () => {
               onChange={(_, selectedDate) => {
                 setShowDatePicker(false);
                 if (selectedDate) {
-                  const current = fixedDate || new Date();
-                  const newDate = new Date(
-                    selectedDate.getFullYear(),
-                    selectedDate.getMonth(),
-                    selectedDate.getDate(),
-                    current.getHours(),
-                    current.getMinutes()
-                  );
-                  setFixedDate(newDate);
+                  setTempDate(selectedDate);
+                  setShowTimePicker(true); // Automatically trigger time picker
                 }
               }}
             />
           )}
 
-          {/* Time Picker Trigger */}
-          <TouchableOpacity style={styles.input} onPress={() => setShowTimePicker(true)}>
-            <Text>
-              {fixedDate
-                ? fixedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : 'Select time of day'}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Time Picker */}
-          {showTimePicker && (
+          {showTimePicker && tempDate && (
             <DateTimePicker
               value={fixedDate || new Date()}
               mode="time"
@@ -249,16 +226,16 @@ const CreateRainCheck = () => {
               is24Hour={false}
               onChange={(_, selectedTime) => {
                 setShowTimePicker(false);
-                if (selectedTime) {
-                  const current = fixedDate || new Date();
-                  const newDate = new Date(
-                    current.getFullYear(),
-                    current.getMonth(),
-                    current.getDate(),
+                if (selectedTime && tempDate) {
+                  const combined = new Date(
+                    tempDate.getFullYear(),
+                    tempDate.getMonth(),
+                    tempDate.getDate(),
                     selectedTime.getHours(),
                     selectedTime.getMinutes()
                   );
-                  setFixedDate(newDate);
+                  setFixedDate(combined);
+                  setTempDate(null);
                 }
               }}
             />
@@ -334,6 +311,12 @@ const styles = StyleSheet.create({
   radioGroup: {
     flexDirection: 'row',
     marginBottom: 16,
+  },
+  reminderHint: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 16,
+    fontStyle: 'italic',
   },
   radioOption: {
     borderWidth: 1,
