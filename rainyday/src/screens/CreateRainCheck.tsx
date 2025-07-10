@@ -39,6 +39,8 @@ const CreateRainCheck = () => {
       : null
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [tempDate, setTempDate] = useState<Date | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(existing?.imageUri || null);
   const [emoji, setEmoji] = useState(existing?.emoji || '');
   const [url, setUrl] = useState(existing?.url || '');
@@ -85,7 +87,7 @@ const CreateRainCheck = () => {
     }
 
     if (reminderType === 'reserved' && !fixedDate) {
-      alert('Please select a reminder date.');
+      alert('Please select a reminder date and time.');
       return;
     }
 
@@ -188,7 +190,13 @@ const CreateRainCheck = () => {
           >
             <Text>
               {fixedDate
-                ? fixedDate.toDateString()
+                ? fixedDate.toLocaleString([], {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                 : 'When do you wanna be reminded?'}
             </Text>
           </TouchableOpacity>
@@ -201,7 +209,33 @@ const CreateRainCheck = () => {
               minimumDate={new Date()}
               onChange={(_, selectedDate) => {
                 setShowDatePicker(false);
-                if (selectedDate) setFixedDate(selectedDate);
+                if (selectedDate) {
+                  setTempDate(selectedDate);
+                  setShowTimePicker(true); // Automatically trigger time picker
+                }
+              }}
+            />
+          )}
+
+          {showTimePicker && tempDate && (
+            <DateTimePicker
+              value={fixedDate || new Date()}
+              mode="time"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              is24Hour={false}
+              onChange={(_, selectedTime) => {
+                setShowTimePicker(false);
+                if (selectedTime && tempDate) {
+                  const combined = new Date(
+                    tempDate.getFullYear(),
+                    tempDate.getMonth(),
+                    tempDate.getDate(),
+                    selectedTime.getHours(),
+                    selectedTime.getMinutes()
+                  );
+                  setFixedDate(combined);
+                  setTempDate(null);
+                }
               }}
             />
           )}
