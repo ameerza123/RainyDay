@@ -30,11 +30,11 @@ const CreateRainCheck = () => {
 
   const [title, setTitle] = useState(existing?.title || '');
   const [notes, setNotes] = useState(existing?.notes || '');
-  const [reminderType, setReminderType] = useState<'fixed' | 'random' | 'rain'>(
-    existing?.reminderType || 'rain'
+  const [reminderType, setReminderType] = useState<'random' | 'reserved' | 'rain'>(
+    existing?.reminderType || 'random'
   );
   const [fixedDate, setFixedDate] = useState<Date | null>(
-    existing?.reminderType === 'fixed' && existing.reminderValue
+    existing?.reminderType === 'reserved' && existing.reminderValue
       ? new Date(existing.reminderValue)
       : null
   );
@@ -84,7 +84,7 @@ const CreateRainCheck = () => {
       return;
     }
 
-    if (reminderType === 'fixed' && !fixedDate) {
+    if (reminderType === 'reserved' && !fixedDate) {
       alert('Please select a reminder date.');
       return;
     }
@@ -94,7 +94,7 @@ const CreateRainCheck = () => {
       title: title.trim(),
       notes: notes.trim(),
       reminderType,
-      reminderValue: reminderType === 'fixed' ? fixedDate?.toISOString() : null,
+      reminderValue: reminderType === 'reserved' ? fixedDate?.toISOString() : null,
       imageUri: imageUri || '',
       emoji: emoji.trim(),
       url: url.trim(),
@@ -160,7 +160,7 @@ const CreateRainCheck = () => {
 
       <Text style={styles.label}>Reminder Type:</Text>
       <View style={styles.radioGroup}>
-        {['rain', 'random', 'fixed'].map((type) => (
+        {['random', 'reserved', 'rain'].map((type) => (
           <TouchableOpacity
             key={type}
             style={[
@@ -174,7 +174,13 @@ const CreateRainCheck = () => {
         ))}
       </View>
 
-      {reminderType === 'fixed' && (
+      <Text style={styles.reminderHint}>
+        {reminderType === 'random' && "Who knows when you'll get reminded?"}
+        {reminderType === 'reserved' && "You choose when to be reminded."}
+        {reminderType === 'rain' && "You'll be reminded next time it rains."}
+      </Text>
+
+      {reminderType === 'reserved' && (
         <>
           <TouchableOpacity
             style={styles.input}
@@ -270,6 +276,12 @@ const styles = StyleSheet.create({
   radioGroup: {
     flexDirection: 'row',
     marginBottom: 16,
+  },
+  reminderHint: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 16,
+    fontStyle: 'italic',
   },
   radioOption: {
     borderWidth: 1,
