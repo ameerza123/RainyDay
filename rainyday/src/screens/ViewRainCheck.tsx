@@ -52,11 +52,11 @@ const ViewRainCheck = () => {
   const handleComplete = async () => {
     Alert.alert(
       'Complete RainCheck',
-      'Mark this RainCheck as completed?',
+      'Do you want to mark this RainCheck as having been completed?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'No', style: 'cancel' },
         {
-          text: 'Complete',
+          text: 'Yes',
           style: 'default',
           onPress: async () => {
             try {
@@ -65,9 +65,36 @@ const ViewRainCheck = () => {
                 completed: true,
                 completedAt: new Date().toISOString(),
               });
-              navigation.goBack(); // Remove it from Dashboard
+              navigation.goBack();
             } catch (error) {
-              console.error('Error marking complete:', error);
+              console.error('Error marking as completed:', error);
+              Alert.alert('Failed to complete. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+    const handleIncomplete = async () => {
+    Alert.alert(
+      'Incomplete RainCheck',
+      'Do you want to mark this RainCheck as not having been completed?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          style: 'default',
+          onPress: async () => {
+            try {
+              const ref = doc(db, 'rainchecks', rainCheck.id);
+              await updateDoc(ref, {
+                completed: false,
+                completedAt: new Date().toISOString(),
+              });
+              navigation.goBack();
+            } catch (error) {
+              console.error('Error marking incomplete:', error);
               Alert.alert('Failed to complete. Please try again.');
             }
           },
@@ -121,7 +148,11 @@ const ViewRainCheck = () => {
         <Text style={styles.deleteButtonText}>Delete RainCheck</Text>
       </TouchableOpacity>
 
-      {!rainCheck.completed && (
+      {rainCheck.completed ? (
+        <TouchableOpacity style={styles.completeButton} onPress={handleIncomplete}>
+          <Text style={styles.completeButtonText}>Mark as Not Completed</Text>
+        </TouchableOpacity>
+      ) : (
         <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
           <Text style={styles.completeButtonText}>Mark as Completed</Text>
         </TouchableOpacity>

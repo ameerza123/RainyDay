@@ -12,7 +12,8 @@ import { useAuth } from '../services/AuthContext';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../services/types';
+import { RootStackParamList } from '../services/AppNavigator';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Dashboard = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -106,6 +107,14 @@ const Dashboard = () => {
       <TouchableOpacity style={styles.createButton} onPress={goToCreateRainCheck}>
         <Text style={styles.createText}>+</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.completedButton}
+        onPress={() => navigation.navigate('CompletedRainChecks')}
+        accessibilityLabel="View Completed RainChecks"
+      >
+        <Icon name="clipboard-check-outline" size={28} color="white" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -164,6 +173,22 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  completedButton: {
+    position: 'absolute',
+    bottom: 40,
+    right: 40,
+    backgroundColor: 'darkorange',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,

@@ -47,9 +47,9 @@ const CompletedRainChecks = () => {
   );
 
   const quotes = [
-    "Look at what you’ve accomplished.",
+    "Look at what you've accomplished.",
     "Progress never looked so good.",
-    "Well done—you made it happen.",
+    "Well done — you made it happen.",
     "These RainChecks met their moment.",
     "One check at a time, you're doing great.",
   ];
@@ -64,8 +64,8 @@ const CompletedRainChecks = () => {
         {loading
           ? 'Loading...'
           : completedChecks.length > 0
-          ? `You’ve completed ${completedChecks.length} RainCheck${completedChecks.length > 1 ? 's' : ''}.`
-          : 'No completed RainChecks yet—but your time will come!'}
+          ? `You've completed ${completedChecks.length} RainCheck${completedChecks.length > 1 ? 's' : ''}.`
+          : 'No completed RainChecks yet, why not go create one?'}
       </Text>
 
       <ScrollView contentContainerStyle={styles.scrollArea}>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   card: {
-    backgroundColor: '#999', // Grayscale tone for completed
+    backgroundColor: '#999',
     padding: 16,
     borderRadius: 10,
     marginBottom: 12,
