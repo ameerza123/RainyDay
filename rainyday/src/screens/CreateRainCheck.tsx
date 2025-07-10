@@ -22,7 +22,7 @@ import {
 import { db } from '../services/firebase';
 import { useAuth } from '../services/AuthContext';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../services/types';
+import { RootStackParamList } from '../services/AppNavigator';
 
 const CreateRainCheck = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CreateRainCheck'>>();

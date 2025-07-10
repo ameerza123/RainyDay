@@ -5,7 +5,15 @@ import UserAuth from '../screens/UserAuth';
 import Dashboard from '../screens/Dashboard';
 import CreateRainCheck from '../screens/CreateRainCheck';
 import ViewRainCheck from '../screens/ViewRainCheck';
-import { RootStackParamList } from './types';
+import CompletedRainChecks from '../screens/CompletedRainChecks';
+
+export type RootStackParamList = {
+  UserAuth: undefined;
+  Dashboard: undefined;
+  CreateRainCheck: { rainCheck?: any } | undefined;
+  ViewRainCheck: { rainCheck: any };
+  CompletedRainChecks: undefined;
+};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,11 +46,16 @@ const AppNavigator = () => {
               component={ViewRainCheck}
               options={{ title: 'RainCheck Details' }}
             />
+            <Stack.Screen
+              name="CompletedRainChecks"
+              component={CompletedRainChecks}
+              options={{ title: 'Completed RainChecks' }}
+            />
           </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
-
+ 
 export default AppNavigator;

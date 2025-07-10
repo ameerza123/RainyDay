@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../services/types';
+import { RootStackParamList } from '../services/AppNavigator';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
