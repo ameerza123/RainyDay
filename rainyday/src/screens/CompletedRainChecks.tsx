@@ -82,9 +82,6 @@ const CompletedRainChecks = () => {
         ))}
       </ScrollView>
 
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backText}>← Back</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -121,19 +118,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     fontWeight: '600',
-  },
-  backButton: {
-    position: 'absolute',
-    bottom: 16,
-    left: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#ddd',
-    borderRadius: 6,
-  },
-  backText: {
-    color: '#333',
-    fontSize: 14,
   },
 });
 
