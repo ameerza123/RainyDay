@@ -21,4 +21,4 @@ The app will also have a "friend system", wherein a user can send a friend reque
 - Firebase (Auth, Firestore, Notifications)
 - OpenWeatherMap API
 
-## RainyDay was designed and developed by Ameer Ahmad
+## RainCheck was designed and developed by Ameer Ahmad
