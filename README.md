@@ -1,4 +1,4 @@
-# RainyDay (this app is a work in progress)
+# RainCheck (this app is a work in progress)
 
 An app designed to help people remember and act on the things they’ve been saving for “a rainy day" or taken a "rain check" on.
 
